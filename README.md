@@ -21,6 +21,7 @@
     - [off](#off)
     - [emit](#emit)
   - [Contribute](#contribute)
+- [Acknowledments](#acknowledments)
   - [License](#license)
 
 ## Install
@@ -122,6 +123,10 @@ If present, `"*"` handlers are invoked after type-matched handlers.
 ## Contribute
 
 If you want to contribute, I would be happy to look in to your PRs.
+
+# Acknowledments
+
+I would like to thank [Jason Miller](https://jasonformat.com/) (@developit) for developing `mitt`. `nitt` is no more than just `mitt` with a few extras.
 
 ## License
 

@@ -51,7 +51,7 @@ export default function nitt(all: EventHandlerMap) {
      * @returns {Promise<any>}
      */
     when(type: string): Promise<any> {
-      return new Promise<any>(r => this.once(type, r));
+      return new Promise<any>(resolve => this.once(type, resolve));
     },
 
     /**
