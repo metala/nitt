@@ -7,6 +7,12 @@
     "type": "git",
     "url": "https://github.com/metala/nitt.git"
   },
+  "keywords": [
+    "nitt",
+    "event-listener",
+    "event-emitter",
+    "eventemitter"
+  ],
   "scripts": {
     "build": "microbundle",
     "dev": "microbundle watch",
