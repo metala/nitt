@@ -81,6 +81,15 @@ describe('nitt#', () => {
       inst.emit('foo', 1);
       expect(events.foo).toHaveLength(0);
     });
+
+    it('should not allow to remove a once handler', () => {
+      let foo = jest.fn();
+      inst.once('foo', foo);
+
+      expect(events.foo).toHaveLength(1);
+      inst.off('foo', foo);
+      expect(events.foo).toHaveLength(1);
+    });
   });
 
   describe('when()', () => {
