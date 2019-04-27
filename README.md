@@ -20,8 +20,9 @@
     - [when](#when)
     - [off](#off)
     - [emit](#emit)
+  - [Caveats](#caveats)
   - [Contribute](#contribute)
-- [Acknowledments](#acknowledments)
+  - [Acknowledments](#acknowledments)
   - [License](#license)
 
 ## Install
@@ -130,7 +131,7 @@ Keep in mind, due to the nature, of the once handlers that self deregister, you 
 
 If you want to contribute, I would be happy to look in to your PRs.
 
-# Acknowledments
+## Acknowledments
 
 I would like to thank [Jason Miller](https://jasonformat.com/) (@developit) for developing `mitt`. `nitt` is no more than just `mitt` with a few extras.
 

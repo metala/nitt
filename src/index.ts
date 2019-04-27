@@ -37,10 +37,11 @@ export default function nitt(all: EventHandlerMap) {
      * @param  {Function} handler Function to call in response to given event
      */
     once(type: string, handler: EventHandler) {
-      const onceHandler = evt => {
+      const onceHandler = (evt: any) => {
         handler(evt);
         this.off(type, onceHandler);
       };
+
       this.on(type, onceHandler);
     },
 
