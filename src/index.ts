@@ -2,10 +2,13 @@
 // and should not return a value
 type EventHandler = (event?: any) => void;
 type WildCardEventHandler = (type: string, event?: any) => void;
+type HasRef<T extends Function> = T & {
+  ref?: any;
+};
 
 // An array of all currently registered event handlers for a type
-type EventHandlerList = Array<EventHandler>;
-type WildCardEventHandlerList = Array<WildCardEventHandler>;
+type EventHandlerList = Array<HasRef<EventHandler>>;
+type WildCardEventHandlerList = Array<HasRef<WildCardEventHandler>>;
 // A map of event types and their corresponding event handlers.
 type EventHandlerMap = {
   '*'?: WildCardEventHandlerList;
@@ -36,12 +39,12 @@ export default function nitt(all: EventHandlerMap) {
      * @param  {String} type	Type of event to listen for, or `"*"` for any event
      * @param  {Function} handler Function to call in response to given event
      */
-    once(type: string, handler: EventHandler) {
+    once(type: string, handler: HasRef<EventHandler>) {
       const onceHandler = (evt: any) => {
         handler(evt);
-        this.off(type, onceHandler);
+        this.off(type, handler);
       };
-
+      onceHandler.ref = handler.ref || handler;
       this.on(type, onceHandler);
     },
 
@@ -52,7 +55,13 @@ export default function nitt(all: EventHandlerMap) {
      * @returns {Promise<any>}
      */
     when(type: string): Promise<any> {
-      return new Promise<any>(resolve => this.once(type, resolve));
+      let resolver;
+      const promise = new Promise(resolve => {
+        resolver = resolve;
+      });
+      resolver.ref = promise;
+      this.once(type, resolver);
+      return promise;
     },
 
     /**
@@ -61,9 +70,12 @@ export default function nitt(all: EventHandlerMap) {
      * @param  {String} type	Type of event to unregister `handler` from, or `"*"`
      * @param  {Function} handler Handler function to remove
      */
-    off(type: string, handler: EventHandler) {
+    off(type: string, handler: EventHandler | Promise<any>) {
       if (all[type]) {
-        all[type].splice(all[type].indexOf(handler) >>> 0, 1);
+        all[type].splice(
+          all[type].findIndex(x => (x.ref || x) === handler) >>> 0,
+          1
+        );
       }
     },
 
