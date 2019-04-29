@@ -16,8 +16,45 @@ type EventHandlerMap = {
  *  @name nitt
  *  @returns {Nitt}
  */
-export default function nitt(all: EventHandlerMap) {
-  all = all || Object.create(null);
+export default function nitt(defs: EventHandlerMap) {
+  const all = new Map(
+    Object.entries(defs).map(([type, handlers]) => [
+      type,
+      new Map(handlers.map(x => [x, x])),
+    ])
+  );
+
+  const handlersFor = (
+    type: string
+  ): Map<any, EventHandler | WildCardEventHandler> =>
+    all[type] || (all[type] = new Map());
+  const remove = (type: string, key: EventHandler | Promise<any>) => {
+    handlersFor(type).delete(key);
+  };
+
+  const add = (
+    type: string,
+    handler: EventHandler | WildCardEventHandler,
+    key?: any
+  ) => {
+    handlersFor(type).set(key || handler, handler);
+  };
+
+  const addOnce = (
+    type: string,
+    handler: EventHandler | WildCardEventHandler,
+    key?: any
+  ) => {
+    key = key || handler;
+    add(
+      type,
+      (a, b) => {
+        handler(a, b);
+        remove(type, key);
+      },
+      key
+    );
+  };
 
   return {
     /**
@@ -27,7 +64,7 @@ export default function nitt(all: EventHandlerMap) {
      * @param  {Function} handler Function to call in response to given event
      */
     on(type: string, handler: EventHandler) {
-      (all[type] || (all[type] = [])).push(handler);
+      add(type, handler);
     },
 
     /**
@@ -37,12 +74,7 @@ export default function nitt(all: EventHandlerMap) {
      * @param  {Function} handler Function to call in response to given event
      */
     once(type: string, handler: EventHandler) {
-      const onceHandler = (evt: any) => {
-        handler(evt);
-        this.off(type, onceHandler);
-      };
-
-      this.on(type, onceHandler);
+      addOnce(type, handler);
     },
 
     /**
@@ -52,7 +84,17 @@ export default function nitt(all: EventHandlerMap) {
      * @returns {Promise<any>}
      */
     when(type: string): Promise<any> {
-      return new Promise<any>(resolve => this.once(type, resolve));
+      let resolver;
+      const promise = new Promise(resolve => {
+        resolver =
+          type === '*'
+            ? (a: any, b: any) => {
+                resolve([a, b]);
+              }
+            : resolve;
+      });
+      addOnce(type, resolver, promise);
+      return promise;
     },
 
     /**
@@ -61,10 +103,8 @@ export default function nitt(all: EventHandlerMap) {
      * @param  {String} type	Type of event to unregister `handler` from, or `"*"`
      * @param  {Function} handler Handler function to remove
      */
-    off(type: string, handler: EventHandler) {
-      if (all[type]) {
-        all[type].splice(all[type].indexOf(handler) >>> 0, 1);
-      }
+    off(type: string, handler: EventHandler | Promise<any>) {
+      remove(type, handler);
     },
 
     /**
@@ -75,10 +115,10 @@ export default function nitt(all: EventHandlerMap) {
      * @param {Any} [evt]  Any value (object is recommended and powerful), passed to each handler
      */
     emit(type: string, evt: any) {
-      (all[type] || []).forEach(handler => {
+      handlersFor(type).forEach(handler => {
         handler(evt);
       });
-      (all['*'] || []).forEach(handler => {
+      handlersFor('*').forEach(handler => {
         handler(type, evt);
       });
     },

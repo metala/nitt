@@ -14,20 +14,26 @@
     "eventemitter"
   ],
   "scripts": {
-    "build": "microbundle",
-    "dev": "microbundle watch",
+    "build": "rollup -c",
+    "watch": "rollup -cw",
     "test": "jest"
   },
   "source": "src/index.ts",
   "main": "dist/nitt.js",
   "module": "dist/nitt.esm.js",
   "unpkg": "dist/nitt.umd.js",
+  "types": "dist/nitt.d.ts",
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@types/jest": "^24.0.11",
     "@types/node": "^11.13.7",
     "documentation": "^10.1.0",
     "jest": "^24.7.1",
-    "microbundle": "^0.11.0",
+    "rollup": "^1.10.1",
+    "rollup-plugin-terser": "^4.0.4",
+    "rollup-plugin-typescript2": "^0.21.0",
     "ts-jest": "^24.0.2",
     "typescript": "^3.4.5"
   }

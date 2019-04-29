@@ -1,5 +1,13 @@
 {
   "compilerOptions": {
-    "lib": ["es2015"]
-  }
+    "declaration": true,
+    "declarationDir": "./dist",
+    "noImplicitAny": false,
+    "outDir": "./dist",
+    "lib": ["es2015"],
+    "target": "esnext",
+    "esModuleInterop": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }

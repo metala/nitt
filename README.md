@@ -1,10 +1,11 @@
 # Nitt
 
-> Small, functional event emitter / pubsub.
+> Small (< 400B) functional event emitter / pubsub.
 
-- **Small:** less than 300 bytes gzipped
+- **Small:** less than 400 bytes gzipped
 - **Familiar:** similar names (on, off, once, emit) & ideas as [Node's EventEmitter](https://nodejs.org/api/events.html#events_class_eventemitter)
-- **Functional:** methods don't rely on `this`, unless you want to...
+- **Functional:** methods don't rely on `this`
+- **Modern:** Uses ES2015/ES6 features `Promise`, `Map`.
 - **No dependency:** Nitt has no external dependencies
 
 ## Table of Contents
@@ -20,7 +21,6 @@
     - [when](#when)
     - [off](#off)
     - [emit](#emit)
-  - [Caveats](#caveats)
   - [Contribute](#contribute)
   - [Acknowledments](#acknowledments)
   - [License](#license)
@@ -46,8 +46,15 @@ emitter.on('foo', e => console.log('foo', e));
 // listen to all events
 emitter.on('*', (type, e) => console.log(type, e));
 
-// listen to a single event
+// listen for a one-time event
 emitter.once('foo', e => console.log('foo', e));
+
+// wait for a one-time event using a promise
+emitter.when('foo').then(e => console.log('foo', e));
+
+// wait for any event using a promise
+// note: In this special case, the promise resolves to array value
+emitter.when('*').then(([type, e]) => console.log(type, e));
 
 // fire an event
 emitter.emit('foo', { a: 'b' });
@@ -56,19 +63,21 @@ emitter.emit('foo', { a: 'b' });
 function onFoo() {}
 emitter.on('foo', onFoo); // listen
 emitter.off('foo', onFoo); // unlisten
-emitter.once('foo', onFoo); // listen to a single event
 
-// using a promise
-const promise = emitter.when('bar');
-promise.then(evt => console.log(evt));
-emitter.emit('bar', 'done'); // prints 'done' in the console
+// one-time listeners
+emitter.once('foo', onFoo); // listen
+emitter.off('foo', onFoo); // unlisten
+
+// promises
+const promise = emitter.when('bar'); // listen
+emitter.off('bar', promise); // unlisten
 ```
 
 ## API
 
 ### nitt
 
-Nitt: Small (<300B) functional event emitter / pubsub.
+Nitt: functional event emitter / pubsub.
 
 **Parameters**
 
@@ -122,10 +131,6 @@ If present, `"*"` handlers are invoked after type-matched handlers.
 
 - `type` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The event type to invoke
 - `evt` **Any?** Any value (object is recommended and powerful), passed to each handler
-
-## Caveats
-
-Keep in mind, due to the nature, of the once handlers that self deregister, you are currently not able to remove (off) a once / when handlers.
 
 ## Contribute
 

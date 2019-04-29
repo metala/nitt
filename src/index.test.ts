@@ -1,4 +1,4 @@
-import nitt from '.';
+import nitt from './index';
 
 it('should default export be a function', () => {
   expect(nitt).toBeInstanceOf(Function);
@@ -82,13 +82,13 @@ describe('nitt#', () => {
       expect(events.foo).toHaveLength(0);
     });
 
-    it('should not allow to remove a once handler', () => {
+    it('should be able to remove a once handler', () => {
       let foo = jest.fn();
       inst.once('foo', foo);
 
       expect(events.foo).toHaveLength(1);
       inst.off('foo', foo);
-      expect(events.foo).toHaveLength(1);
+      expect(events.foo).toHaveLength(0);
     });
   });
 
@@ -99,11 +99,26 @@ describe('nitt#', () => {
       expect(result).toBeInstanceOf(Promise);
     });
 
-    it('should resolve with the event', async () => {
+    it('should resolve the event', async () => {
       const promise = inst.when('foo');
 
       inst.emit('foo', 'event data');
       expect(await promise).toEqual('event data');
+    });
+
+    it('should resolve with an array when listening to star', async () => {
+      const promise = inst.when('*');
+
+      inst.emit('foo', 'event data');
+      expect(await promise).toEqual(['foo', 'event data']);
+    });
+
+    it('should be able to remove a when promise', () => {
+      const promise = inst.when('foo');
+
+      expect(events.foo).toHaveLength(1);
+      inst.off('foo', promise);
+      expect(events.foo).toHaveLength(0);
     });
   });
 
